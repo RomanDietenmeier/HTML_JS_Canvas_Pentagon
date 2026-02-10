@@ -15,8 +15,15 @@ function degreesToRadians(degrees) {
   return degrees * (Math.PI / 180);
 }
 
+function rotate90(point, center) {
+  const [px, py] = point;
+  const [cx, cy] = center;
+
+  return [cx + (py - cy), cy - (px - cx)];
+}
+
 function drawPentagons(ab_width, ce_y_offset, ce_x_offset, d_y_offset) {
-  function drawPentagon(x, y) {
+  function drawPentagon(x, y, rotate_n_times = 0, rotate_center = [0, 0]) {
     // ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     ab_width = Number.parseInt(ab_width);
@@ -31,8 +38,14 @@ function drawPentagons(ab_width, ce_y_offset, ce_x_offset, d_y_offset) {
     d_y_offset = Number.parseInt(d_y_offset);
     const D = [x + ab_width / 2, C[1] - d_y_offset];
 
+    let points_roated = [A, B, C, D, E];
+    for (let i = 0; i < rotate_n_times; i++) {
+      points_roated = points_roated.map(p => rotate90(p, rotate_center));
+    }
+
+
     ctx.beginPath();
-    for (const [x, y] of [A, B, C, D, E]) {
+    for (const [x, y] of points_roated) {
       ctx.lineTo(x, y);
     }
     ctx.strokeStyle = "black";
@@ -44,7 +57,10 @@ function drawPentagons(ab_width, ce_y_offset, ce_x_offset, d_y_offset) {
   }
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const [A, B, C, D, E] = drawPentagon(250, 500);
+  let [A, B, C, D, E] = drawPentagon(250, 500);
+  drawPentagon(B[0], 500, 2, B);
+  drawPentagon(A[0] - ab_width / 2, A[1] + (A[1] - D[1]) + ab_width, 1, A);
+  drawPentagon(A[0] - ab_width / 2, A[1] + (A[1] - D[1]), 3, A);
   // drawPentagon(C[0], C[1]);
 }
 
